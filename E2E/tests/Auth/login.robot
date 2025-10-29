@@ -22,5 +22,3 @@ Login with wrong password
     Should Be True    ${REGISTER.status_code} in [200, 201]
     ${resp}=    Login User    ${EMAIL}    wrongpass
     Should Be Equal As Integers    ${resp.status_code}    401
-
-
