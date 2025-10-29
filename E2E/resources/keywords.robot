@@ -14,10 +14,11 @@ ${HEADERS}     {"Content-Type": "application/json"}
 Setup API Session
     Create Session    api    ${BASE_URL}    headers=${HEADERS}
 
+*** Keywords ***
 Generate Unique Email
-    ${ts}=    Get Time    epoch
-    ${email}=    Set Variable    meow+${ts}@example.com
-    [Return]    ${email}
+    ${uuid}=    Evaluate    __import__('uuid').uuid4().hex[:10]
+    ${email}=   Set Variable    test+${uuid}@example.com
+    RETURN      ${email}
 
 
 Parse JSON
