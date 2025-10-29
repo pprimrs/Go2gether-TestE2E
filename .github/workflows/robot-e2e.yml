@@ -1,0 +1,51 @@
+name: 🤖 Robot Framework E2E Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Robot Framework Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️ Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️ Setup Python environment
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 3️ Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip
+          pip install -r requirements.txt
+
+      # 4️ Run Robot Framework tests
+      - name: Run Robot tests
+        run: |
+          mkdir -p reports
+          robot -d reports E2E/tests
+
+      # 5️ Upload Robot reports as an artifact
+      - name: Upload Robot reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: robot-reports
+          path: reports/
+
+      # 6️⃣ Add a summary to the GitHub Actions job page
+      - name: Summary
+        if: ${{ always() }}
+        run: |
+          echo "### ✅ Robot Framework Tests Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- Reports saved as artifact: **robot-reports**" >> $GITHUB_STEP_SUMMARY
+          echo "- Main report path: \`reports/report.html\`" >> $GITHUB_STEP_SUMMARY
