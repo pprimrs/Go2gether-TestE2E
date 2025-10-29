@@ -24,7 +24,7 @@ jobs:
 
     env:
       # Environment variables for your app (อ่านจาก Secrets)
-      BASE_URL: ${{ secrets.BASE_URL }}                # ex: https://api.sit.example.com
+      BASE_URL: ${{ http://localhost:8080 }}                # ex: https://api.sit.example.com
       API_KEY: ${{ secrets.API_KEY }}
       API_SECRET: ${{ secrets.API_SECRET }}
       RESOURCE_OWNER_ID: ${{ secrets.RESOURCE_OWNER_ID }}
