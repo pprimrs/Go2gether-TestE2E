@@ -6,12 +6,11 @@ Library           OperatingSystem
 Variables         ../resources/environment.py
 
 *** Variables ***
-# เพิ่มค่าเริ่มต้นให้ไม่ขึ้นแดงใน VS Code
 ${BASE_URL}    http://localhost:8080
 ${HEADERS}     {"Content-Type": "application/json"}
 
 *** Keywords ***
-# ---------- Infra ----------
+
 Setup API Session
     Create Session    api    ${BASE_URL}    headers=${HEADERS}
 
@@ -20,14 +19,14 @@ Generate Unique Email
     ${email}=    Set Variable    meow+${ts}@example.com
     [Return]    ${email}
 
-# ---------- JSON helper (แทน JSONLibrary) ----------
+
 Parse JSON
     [Arguments]    ${response}
     ${text}=    Evaluate    $response.text
     ${obj}=     Evaluate    __import__('json').loads($text)
     [Return]    ${obj}
 
-# ---------- Auth APIs ----------
+
 Register User
     [Arguments]    ${email}    ${password}
     ${payload}=    Create Dictionary    email=${email}    password=${password}
@@ -50,7 +49,7 @@ Extract Access Token
     [Arguments]    ${response}
     ${body}=    Parse JSON    ${response}
 
-    # ดึง token ตามรูปแบบที่พบบ่อย (ของคุณคือ 'token' บนสุด)
+   
     ${token}=    Evaluate    ($body.get('token') or ($body.get('data') or {}).get('token') or $body.get('access_token') or $body.get('accessToken') or ($body.get('data') or {}).get('access_token') or ($body.get('data') or {}).get('accessToken'))
 
     Run Keyword If    '${token}'=='None'    Log    LOGIN RESPONSE BODY: ${body}    WARN
