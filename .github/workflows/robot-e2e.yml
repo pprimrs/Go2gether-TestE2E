@@ -7,45 +7,78 @@ on:
     branches: [ main, develop ]
   workflow_dispatch:
 
+concurrency:
+  group: robot-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Run Robot Framework Tests
     runs-on: ubuntu-latest
 
+    env:
+      # (optional) ใช้ Secrets -> Settings > Secrets and variables > Actions
+      BASE_URL: ${{ secrets.BASE_URL }}
+      API_KEY:  ${{ secrets.API_KEY }}
+
     steps:
-      # 1️ Checkout repository
+      # 1) Checkout
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️ Setup Python environment
+      # 2) Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      # 3️ Install dependencies
+      # 3) Cache pip (เร็วขึ้น)
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # 4) Install deps
       - name: Install dependencies
         run: |
           python -m pip install -U pip
           pip install -r requirements.txt
 
-      # 4️ Run Robot Framework tests
-      - name: Run Robot tests
+      # 5) (optional) เขียน .env จาก Secrets ถ้าโปรเจกต์อ่าน .env
+      - name: Create .env from secrets (optional)
+        run: |
+          if [ -n "${BASE_URL}" ]; then echo "BASE_URL=${BASE_URL}" >> .env; fi
+          if [ -n "${API_KEY}" ];  then echo "API_KEY=${API_KEY}"   >> .env; fi
+        shell: bash
+
+      # 6) Run Robot tests (ถ้าเทสล้มเหลว job จะ fail ตามจริง)
+      #    ถ้าอยากให้ workflow ไม่ล้ม ใช้ --nostatusrc (เอาคอมเมนต์ออก)
+      - name: Run Robot Framework Tests
         run: |
           mkdir -p reports
           robot -d reports E2E/tests
+          # robot --nostatusrc -d reports E2E/tests   # <- เปิดบรรทัดนี้แทน เพื่อไม่ให้ job ล้ม
 
-      # 5️ Upload Robot reports as an artifact
+      # 7) อัปโหลดรายงาน "เสมอ" แม้เทสล้มเหลว
       - name: Upload Robot reports
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: robot-reports
-          path: reports/
+          path: |
+            reports/**
+            report.html
+            log.html
+            output.xml
+          if-no-files-found: warn
 
-      # 6️⃣ Add a summary to the GitHub Actions job page
+      # 8) สรุปผลในหน้า Actions
       - name: Summary
         if: ${{ always() }}
         run: |
-          echo "### ✅ Robot Framework Tests Completed" >> $GITHUB_STEP_SUMMARY
-          echo "- Reports saved as artifact: **robot-reports**" >> $GITHUB_STEP_SUMMARY
-          echo "- Main report path: \`reports/report.html\`" >> $GITHUB_STEP_SUMMARY
+          echo "### Robot Framework Tests Finished" >> $GITHUB_STEP_SUMMARY
+          echo "- Reports artifact: **robot-reports**" >> $GITHUB_STEP_SUMMARY
+          echo "- Main report: \`reports/report.html\`" >> $GITHUB_STEP_SUMMARY
