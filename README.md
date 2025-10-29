@@ -42,6 +42,33 @@ After running, reports will be generated automatically:
  - JSONLibrary
  - Collections / OperatingSystem Libraries
 
+---
+
+## 🧪 Test Cases 
+
+### login.robot
+| No. | Test Case | Tags | Expected |
+|---|---|---|---|
+| 1 | **Login with valid email and password** | `login`, `positive`, `smoke` | **200** and token returned |
+| 2 | **Login with wrong password** | `login`, `negative` | **401** |
+
+### register.robot
+| No. | Test Case | Tags | Expected |
+|---|---|---|---|
+| 1 | **Register with valid information** | `register`, `positive` | **200/201** |
+| 2 | **Register with existing email** | `register`, `negative` | **400/409** |
+| 3 | **Register with missing password** | `register`, `negative` | **400** |
+
+### password.robot
+| No. | Test Case | Tags | Expected |
+|---|---|---|---|
+| 1 | **Forgot password with registered email** | `password`, `positive` | **200** |
+| 2 | **Reset password successfully via OTP** | `password`, `positive` | **200** |
+
+**Total:** 7 cases
+
+---
+
 ## 📁 Project Structure
   ```bash
 Go2gether-TestE2E/
@@ -66,6 +93,5 @@ Go2gether-TestE2E/
 ├── report.html
 ├── output.xml
 └── requirements.txt
-
 
 
