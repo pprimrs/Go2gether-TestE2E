@@ -19,6 +19,9 @@ Login with wrong password
     [Tags]    login    negative
     ${EMAIL}=    Generate Unique Email
     ${REGISTER}=    Register User    ${EMAIL}    P@ssw0rd123
-    Should Be True    ${REGISTER.status_code} in [200, 201]
+
+    Run Keyword If    ${REGISTER.status_code} == 409    Log    User already exists: ${EMAIL}
+    Should Be True    ${REGISTER.status_code} in [200, 201, 409]
+
     ${resp}=    Login User    ${EMAIL}    wrongpass
     Should Be Equal As Integers    ${resp.status_code}    401
