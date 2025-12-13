@@ -6,8 +6,9 @@ Library           OperatingSystem
 Variables         ../resources/environment.py
 
 *** Variables ***
-${BASE_URL}    http://localhost:8080
+${BASE_URL}    %{BASE_URL}
 ${HEADERS}     {"Content-Type": "application/json"}
+
 
 *** Keywords ***
 
